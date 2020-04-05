@@ -1,4 +1,4 @@
-package ru.nikitasemiklit.aircmsapp.net
+package ru.nikitasemiklit.aircmsapp.model.net.device
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,11 +1,11 @@
 package ru.nikitasemiklit.aircmsapp
 
-import androidx.annotation.MainThread
-import kotlinx.coroutines.withContext
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import org.junit.Test
-
-import org.junit.Assert.*
-import ru.nikitasemiklit.aircmsapp.net.Client
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import ru.nikitasemiklit.aircmsapp.model.net.AirCmsApi
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -15,9 +15,27 @@ import ru.nikitasemiklit.aircmsapp.net.Client
 class ApiTest {
     @Test
     fun getTestDevices() {
-        val devices = Client().getDevices().blockingGet().body()
+        val client = Retrofit.Builder()
+            .baseUrl("https://aircms.online/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+            .create(AirCmsApi::class.java)
+        val devices = client.getDevices().blockingGet().body()
         assert(devices?.devices?.isNotEmpty()!!)
     }
 
-
+    @Test
+    fun getTestData() {
+        val client = Retrofit.Builder()
+            .baseUrl("https://aircms.online/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+            .create(AirCmsApi::class.java)
+        val data = client.getData(0).blockingGet().body()
+        assert(data?.data?.isNotEmpty()!!)
+    }
 }

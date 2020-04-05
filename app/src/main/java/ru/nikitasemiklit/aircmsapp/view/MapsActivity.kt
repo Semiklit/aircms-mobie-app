@@ -1,16 +1,11 @@
-package ru.nikitasemiklit.aircmsapp
+package ru.nikitasemiklit.aircmsapp.view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
-import com.google.android.gms.maps.CameraUpdateFactory
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import io.reactivex.schedulers.Schedulers
-import ru.nikitasemiklit.aircmsapp.net.Client
+import ru.nikitasemiklit.aircmsapp.R
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -37,12 +32,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        Client().getDevices().observeOn(Schedulers.io()).subscribe({
-            value ->
-            value.body()?.devices?.forEach {
-                val latLng = LatLng(it.lat, it.lon)
-                mMap.addMarker(MarkerOptions().position(latLng).title(it.address))
-            }
-        })
+//        Client().getDevices().observeOn(Schedulers.io()).subscribe({
+//            value ->
+//            value.body()?.devices?.forEach {
+//                val latLng = LatLng(it.lat, it.lon)
+//                mMap.addMarker(MarkerOptions().position(latLng).title(it.address))
+//            }
+//        })
     }
 }
