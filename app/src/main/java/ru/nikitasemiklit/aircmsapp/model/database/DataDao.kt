@@ -8,8 +8,8 @@ import androidx.room.Query
 @Dao
 interface DataDao {
 
-    @Query("SELECT * FROM DataEntity WHERE deviceId IN (:devices)")
-    fun getData(devices: Array<DeviceEntity>): Array<DataEntity>
+    @Query("SELECT * FROM DataEntity WHERE deviceId IN (:deviceIds)")
+    fun getData(deviceIds: Array<Long>): Array<DataEntity>
 
     @Query("DELETE FROM DataEntity WHERE time < :t")
     fun clearData(t: Long)

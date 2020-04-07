@@ -2,7 +2,7 @@ package ru.nikitasemiklit.aircmsapp.model.database
 
 import androidx.room.Entity
 
-@Entity(primaryKeys = ["deviceId, time"])
+@Entity(primaryKeys = ["deviceId", "time"])
 data class DataEntity(
     val deviceId: Long,
     val time: Long,
@@ -12,7 +12,7 @@ data class DataEntity(
     val p1: Int,
     val p2: Int,
     val ts: Int,
-    val windDirection: String,
+    val windDirection: String?,
     val windSpeed: Double,
     val tvoc: Int,
     val rad: Int
