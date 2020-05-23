@@ -2,6 +2,8 @@ package ru.nikitasemiklit.aircmsapp.model.model
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import ru.nikitasemiklit.aircmsapp.model.database.CmsDatabase
 import ru.nikitasemiklit.aircmsapp.model.database.DataEntity
 import ru.nikitasemiklit.aircmsapp.model.database.DeviceEntity
@@ -26,6 +28,7 @@ class CMSDataProvider @Inject constructor(val database: CmsDatabase, val client:
             })
         }
     }
+
 
     fun loadLatestData(): Completable {
         return Completable.create { emitter ->
@@ -60,6 +63,8 @@ class CMSDataProvider @Inject constructor(val database: CmsDatabase, val client:
                 }
             )
         }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     fun updateDeviceList(): Completable {
@@ -85,6 +90,8 @@ class CMSDataProvider @Inject constructor(val database: CmsDatabase, val client:
                 }
             )
         }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     fun quite() {
