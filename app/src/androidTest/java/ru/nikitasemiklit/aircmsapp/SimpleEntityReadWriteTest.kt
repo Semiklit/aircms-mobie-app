@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ class SimpleEntityReadWriteTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeUserAndReadInList() {
+    fun writeDevicesAndRead() {
         deviceDao.insert(
             arrayOf(
                 DeviceEntity(1, 12.0, 12.0, "Челябниск"),
@@ -58,8 +59,8 @@ class SimpleEntityReadWriteTest {
             )
         )
         val selectedDevices = deviceDao.getDevices(11.5, 12.1, 11.5, 12.1)
-        assert(selectedDevices.size == 1)
-        assert(selectedDevices[0].id.compareTo(1) == 0)
+        Assert.assertTrue(selectedDevices.size == 1)
+        Assert.assertTrue(selectedDevices[0].id.compareTo(1) == 0)
     }
 
     @Test
@@ -73,18 +74,19 @@ class SimpleEntityReadWriteTest {
             )
         }
         deviceDao.insert(devices.toTypedArray())
-        val selectedDevices = deviceDao.getDevices(0.0, 0.0, 1000.0, 1000.0)
-        assert(devices.size == selectedDevices.size)
+        val selectedDevices = deviceDao.getDevices(-1000.0, 1000.0, -1000.0, 1000.0)
+        Assert.assertEquals(devices.size, selectedDevices.size)
     }
 
     @Test
     fun getDataAndSave() {
         val currentTime = Date().time
-        val dataReponse = client.getData(0).blockingGet().body()!!.data
-        val datas = dataReponse.map { data ->
+        val time = 0;
+        val dataResponse = client.getData(time).blockingGet().body()!!.data
+        val data = dataResponse.map { data ->
             DataEntity(
                 data.deviceId,
-                currentTime,
+                currentTime - time,
                 data.temp,
                 data.humidity,
                 data.pressure,
@@ -97,9 +99,36 @@ class SimpleEntityReadWriteTest {
                 data.rad
             )
         }
-        dataDao.addData(datas.toTypedArray())
-        val deviceIds = HashSet<Long>(dataReponse.map { data -> data.deviceId })
+        dataDao.addData(data.toTypedArray())
+        val deviceIds = HashSet<Long>(dataResponse.map { d -> d.deviceId })
         val selectedData = dataDao.getData(deviceIds.toTypedArray())
-        assert(datas.size == selectedData.size)
+        Assert.assertTrue(data.size == selectedData.size)
+    }
+
+    @Test
+    fun getTimeSetFromSavedData() {
+        val currentTime = Date().time
+        for (t in 0..20) {
+            val dataResponse = client.getData(t).blockingGet().body()!!.data
+            val data = dataResponse.map { data ->
+                DataEntity(
+                    data.deviceId,
+                    currentTime - t,
+                    data.temp,
+                    data.humidity,
+                    data.pressure,
+                    data.p1,
+                    data.p2,
+                    data.ts,
+                    data.windDirection,
+                    data.windSpeed,
+                    data.tvoc,
+                    data.rad
+                )
+            }
+            dataDao.addData(data.toTypedArray())
+        }
+        val timeSet = HashSet<Long>(dataDao.getTimeSet().map { t -> t })
+        Assert.assertTrue(timeSet.size == 21)
     }
 }
