@@ -3,9 +3,9 @@ package ru.nikitasemiklit.aircmsapp.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import ru.nikitasemiklit.aircmsapp.di.DaggerAppComponent
 import ru.nikitasemiklit.aircmsapp.model.database.DataEntity
 import ru.nikitasemiklit.aircmsapp.model.database.DeviceEntity
@@ -15,24 +15,22 @@ import javax.inject.Inject
 
 class MapActivityViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val subscriptions = CompositeDisposable()
     private val currentCoordinates = MutableLiveData<CoordinatesInterval>()
 
     val devices = MutableLiveData<List<Pair<DeviceEntity, DataEntity>>>()
-        get
 
     init {
-        val appComponent = DaggerAppComponent.builder().application(getApplication()).build()
-        appComponent.inject(this)
-        subscriptions.add(
-            dataProvider.loadLatestData().concatWith(dataProvider.updateDeviceList()).subscribe {
-                currentCoordinates.observeForever { c ->
-                    dataProvider.getDevicesByCoordinates(c).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe { result ->
-                            devices.postValue(result)
-                        }
-                }
-            })
+        DaggerAppComponent.builder().application(app).build().also { it.inject(this) }
+        viewModelScope.launch {
+            update()
+        }
+    }
+
+    private suspend fun update() {
+        val futureData = viewModelScope.async { dataProvider.loadLatestDataKtx() }
+        val futureDevice = viewModelScope.async { dataProvider.updateDeviceListKtx() }
+        futureData.await()
+        futureDevice.await()
     }
 
     @Inject
@@ -40,10 +38,15 @@ class MapActivityViewModel(app: Application) : AndroidViewModel(app) {
 
     fun onMapMoved(coordinates: CoordinatesInterval) {
         currentCoordinates.postValue(coordinates)
+        viewModelScope.launch {
+            dataProvider.getDevicesByCoordinatesKtx(coordinates).also {
+                devices.postValue(it)
+            }
+        }
     }
 
     override fun onCleared() {
-        subscriptions.dispose()
+        dataProvider.quite()
         super.onCleared()
     }
 

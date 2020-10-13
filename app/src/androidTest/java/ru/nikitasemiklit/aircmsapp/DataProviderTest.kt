@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.nikitasemiklit.aircmsapp.model.database.CmsDatabase
 import ru.nikitasemiklit.aircmsapp.model.model.CMSDataProvider
@@ -34,8 +33,6 @@ class DataProviderTest {
             .Builder()
             .baseUrl("https://aircms.online/")
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
             .create(AirCmsApi::class.java)
         dataProvider = CMSDataProvider(db, client)
@@ -49,12 +46,13 @@ class DataProviderTest {
 
     @Test
     fun loadAndGetData() {
-        dataProvider.updateDeviceList().blockingAwait()
-        dataProvider.loadLatestData().blockingAwait()
-        val listData =
-            dataProvider.getDevicesByCoordinates(CoordinatesInterval(.0, 200.0, .0, 200.0))
-                .blockingGet()
-        assertNotNull(listData)
-        assertEquals(listData[0].first.id, listData[0].second.deviceId)
+        runBlocking {
+            dataProvider.updateDeviceListKtx()
+            dataProvider.loadLatestDataKtx()
+            val listData =
+                dataProvider.getDevicesByCoordinatesKtx(CoordinatesInterval(.0, 200.0, .0, 200.0))
+            assertNotNull(listData)
+            assertEquals(listData[0].first.id, listData[0].second.deviceId)
+        }
     }
 }

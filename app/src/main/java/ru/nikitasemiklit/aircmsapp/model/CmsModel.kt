@@ -7,6 +7,5 @@ class CmsModel(val client: AirCmsApi, val database: CmsDatabase) {
 
 
     fun updateDatabase() {
-        client.getDevices().subscribe()
     }
 }
