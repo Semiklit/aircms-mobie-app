@@ -11,8 +11,8 @@ import javax.inject.Inject
 
 class CMSDataProvider @Inject constructor(val database: CmsDatabase, val client: AirCmsApi) {
 
-    suspend fun getDevicesByCoordinatesKtx(c: CoordinatesInterval): List<Pair<DeviceEntity, DataEntity>> {
-        return withContext(Dispatchers.IO) {
+    suspend fun getDevicesByCoordinatesKtx(c: CoordinatesInterval): List<Pair<DeviceEntity, DataEntity>> =
+        withContext(Dispatchers.IO) {
             val devices = database.deviceDao().getDevices(c.latFrom, c.latTo, c.lonFrom, c.lonTo)
                 .apply { sortBy { deviceEntity -> deviceEntity.id } }
             val data =
@@ -24,7 +24,6 @@ class CMSDataProvider @Inject constructor(val database: CmsDatabase, val client:
                 Pair(device, dataEntity)
             }
         }
-    }
 
     suspend fun loadLatestDataKtx() {
         withContext(Dispatchers.IO) {

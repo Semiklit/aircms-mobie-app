@@ -20,7 +20,7 @@ class MapActivityViewModel(app: Application) : AndroidViewModel(app) {
     val devices = MutableLiveData<List<Pair<DeviceEntity, DataEntity>>>()
 
     init {
-        DaggerAppComponent.builder().application(app).build().also { it.inject(this) }
+        DaggerAppComponent.builder().application(app).build().inject(this)
         viewModelScope.launch {
             update()
         }

@@ -4,6 +4,7 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import ru.nikitasemiklit.aircmsapp.di.modules.DataModule
+import ru.nikitasemiklit.aircmsapp.view.MapsActivity
 import ru.nikitasemiklit.aircmsapp.viewModel.MapActivityViewModel
 import javax.inject.Singleton
 
@@ -19,4 +20,5 @@ interface AppComponent {
     }
 
     fun inject(viewModel: MapActivityViewModel)
+    fun inject(activity: MapsActivity)
 }

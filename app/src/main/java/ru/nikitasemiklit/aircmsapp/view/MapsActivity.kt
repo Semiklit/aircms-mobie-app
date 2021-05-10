@@ -39,7 +39,7 @@ class MapsActivity : AppCompatActivity() {
                     )
                 )
             }
-            map.setOnMapClickListener { marker ->
+            map.setOnMapClickListener {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
             viewModel.devices.observe(this, Observer { devicesAndData ->
