@@ -1,3 +1,2 @@
-include ':dynamicfeature'
 rootProject.name='AirCms App'
 include ':app'
